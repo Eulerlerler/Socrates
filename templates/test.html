@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socrates</title>
+
+
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #container {
+            text-align: center;
+        }
+
+
+
+        #chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 1200px;
+            height: 580px;
+            overflow-y: scroll;
+            margin: 0 auto;
+        }
+        #chat-box div {
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+
+
+        #input-box {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+
+
+        #user-input {
+            width: 80%;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+
+
+
+
+<body>
+    <div id="container">
+        <h1>苏格拉底提问</h1>
+
+
+
+        <div id="chat-box"></div>
+
+
+
+        <div id="input-box">
+            <input type="text" id="user-input" placeholder="Type your message here" />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+
+
+    <script>
+        let messages = [];
+
+
+
+        function addMessage(role, content) {
+            const chatBox = document.getElementById('chat-box');
+            const messageDiv = document.createElement('div');
+	     const imgSocra = 'D:/PyCharm/Socratic_Questioning/templates/Socra.jpg';
+	     const imgstu = 'D:/PyCharm/Socratic_Questioning/templates/stu.jpg';
+	     const imageSoc = document.createElement('img');
+	     const imagestu = document.createElement('img');
+	     imageSoc.src = imgSocra;
+ 	     imagestu.src = imgstu;
+	     imageSoc.style.width = '24px';
+ 	     imageSoc.style.height = 'auto';
+	     imagestu.style.width = '24px';
+	     imagestu.style.height = 'auto';
+	     imageSoc.style.verticalAlign = 'middle';
+	     imagestu.style.verticalAlign = 'middle';
+             const text = document.createElement('span');
+            messageDiv.style.display = 'flex';
+            messageDiv.style.alignItems = 'middle';
+	    text.textContent = `: ${content}`;
+	     text.style.fontSize = '24px';
+ 	     if (role == 'Socrates') {
+	     text.style.color = 'blue';
+	     messageDiv.appendChild(imageSoc);
+	     }
+	     if (role == 'User') {
+	     text.style.color = 'black';
+ 	     messageDiv.appendChild(imagestu);
+	     }
+	    messageDiv.appendChild(text);
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+
+
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return;
+            addMessage('User', userInput);
+
+            messages.push({ role: 'user', content: userInput});
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userInput, messages: messages })
+            })
+            .then(response => response.json())
+            .then(data => {
+        	addMessage('Socrates', data.server);    		
+                messages.push({ role: 'assistant', content: data.server});
+	})
+            .catch(error => console.error('Error:', error));
+
+            document.getElementById('user-input').value = '';
+        }
+    </script>
+</body>
+
+
+
+</html>
+
